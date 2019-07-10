@@ -4,6 +4,7 @@
 assert(jit, "Please use LuaJIT 2.0.5")
 
 local ffi = require("ffi")
+local bit = require("bit")
 local gmp = ffi.load("gmp")
 
 assert(gmp, "Please provide gmp library in your load path")
@@ -91,6 +92,10 @@ typedef const __mpf_struct *mpf_srcptr;
 typedef __mpf_struct *mpf_ptr;
 typedef const __mpq_struct *mpq_srcptr;
 typedef __mpq_struct *mpq_ptr;
+
+//inline int mpz_sign(mpz_srcptr a) { return a->_mp_size < 0 ? -1 : a->_mp_size > 0; }
+//#define mpf_sgn(F) ((F)->_mp_size < 0 ? -1 : (F)->_mp_size > 0)
+//#define mpq_sgn(Q) ((Q)->_mp_num._mp_size < 0 ? -1 : (Q)->_mp_num._mp_size > 0)
 
 
 /** Integer
@@ -531,7 +536,7 @@ local gmpffi = {
       "mpz_limbs_write",
       "mpz_limbs_modify",
       "mpz_limbs_finish",
-      "mpz_roinit_n",      
+      "mpz_roinit_n",
    },
    rational_interface = {
       "mpq_abs",
@@ -651,6 +656,11 @@ local gmpffi = {
       ["vprintf"] = "__gmp_vprintf",
       ["vsnprintf"] = "__gmp_vsnprintf",
       ["vsprintf"] = "__gmp_vsprintf",
+      ["mpz_sgn"] = "",
+      ["mpf_sgn"] = "",
+      ["mpq_sgn"] = "",
+      ["mpz_odd"] = "",
+      ["mpz_even"] = "",
    }
 }
 
@@ -660,13 +670,20 @@ function gmpffi.help( option )
       print("List supported interface: gmpffi.help( \"[integer|rational|float|misc]\" )")
       return
    end
-   local tbl = gmpffi.integer_interface
+   local tbl = gmpffi.misc_interface
+   if option == "misc" then
+      for k, _ in pairs(tbl) do
+         print(k)
+      end
+      return
+   end
+   
    if option == "float" then
       tbl = gmpffi.float_interface
    elseif option == "rational" then
       tbl = gmpffi.rational_interface
    elseif option == "misc" then
-      tbl = gmpffi.misc_interface
+      tbl = gmpffi.integer_interface
    end
    for _, v in ipairs(tbl) do
       print(v)
@@ -689,6 +706,21 @@ function gmpffi.mpz( value, base )
    return nil
 end
 
+function gmpffi.mpz_sgn( value )
+   assert(value)
+   local v = value[0]._mp_size;
+   return v < 0 and -1 or v > 0 and 1 or 0
+end
+
+function gmpffi.mpz_odd( value )
+   assert(value)
+   return value[0]._mp_size ~= 0 and bit.band(1, tonumber(value[0]._mp_d[0])) == 1
+end
+
+function gmpffi.mpz_event( value )
+   return gmpffi.mpz_odd( value )
+end
+
 function gmpffi.mpf( value, base )
    local mpf = ffi.new("mpf_t")
    if mpf then
@@ -703,6 +735,12 @@ function gmpffi.mpf( value, base )
       return mpf
    end
    return nil
+end
+
+function gmpffi.mpf_sgn( value )
+   assert(value)
+   local v = value[0]._mp_size;
+   return v < 0 and -1 or v > 0 and 1 or 0
 end
 
 function gmpffi.mpq( num, den  )
@@ -720,6 +758,12 @@ function gmpffi.mpq( num, den  )
    return nil
 end
 
+function gmpffi.mpq_sgn( value )
+   assert(value)
+   local v = value[0]._mp_num._mp_size;
+   return v < 0 and -1 or v > 0 and 1 or 0
+end
+
 function gmpffi.init()
    local tbl = {
       gmpffi.integer_interface,
@@ -734,7 +778,10 @@ function gmpffi.init()
       end
    end
    for k, v in pairs(gmpffi.misc_interface) do
-      gmpffi[k] = gmp[v]
+      if v:len() > 3 then
+         assert(gmp[v], string.format("gmp.%s not exist", v)) 
+         gmpffi[k] = gmp[v]
+      end
    end
    return true
 end
