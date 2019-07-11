@@ -93,10 +93,6 @@ typedef __mpf_struct *mpf_ptr;
 typedef const __mpq_struct *mpq_srcptr;
 typedef __mpq_struct *mpq_ptr;
 
-//inline int mpz_sign(mpz_srcptr a) { return a->_mp_size < 0 ? -1 : a->_mp_size > 0; }
-//#define mpf_sgn(F) ((F)->_mp_size < 0 ? -1 : (F)->_mp_size > 0)
-//#define mpq_sgn(Q) ((Q)->_mp_num._mp_size < 0 ? -1 : (Q)->_mp_num._mp_size > 0)
-
 
 /** Integer
  */
