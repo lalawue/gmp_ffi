@@ -11,7 +11,7 @@ examples to show how to use gmp_ffi.lua.
 
 get basic example with
 
-```lua
+```bash
 $ luajit test_gmpffi.lua
 mpz: a:11111111110999999999999999999999988888888889, c sign:1, odd:true
 mpz: value base ff
@@ -24,14 +24,14 @@ random: 4176066647
 
 a prime calculation program, try to get first 1 millon primes below, cost about 2 minutes, or just get the last like
 
-```lua
+```bash
 $ luajit test_prime.lua 15485864 > output_primes.txt
 $ luajit test_prime.lua 15485800 15485864
 ```
 
 we can testify with <https://primes.utm.edu/lists/small/millions/primes1.zip>, download and extract the file then output primes in lines:
 
-```lua
+```bash
 $ unzip primes1.zip
 Archive:  primes1.zip
   inflating: primes1.txt
@@ -43,26 +43,26 @@ $ diff primes_lines.txt output_primes.txt
 
 first get primes in hex using later, using 32bit integer for example
 
-```lua
+```bash
 $ luajit test_prime.lua 0xffffff00 0xffffffff hex > primes_hex.txt
 ```
 
 generate key pairs in current dir
 
-```lua
+```bash
 $ luajit test_rsa.lua -keygen primes_hex.txt
 generate rsa_pub.txt and rsa_priv.txt
 ```
 
 try encode
 
-```lua
+```bash
 $ luajit test_rsa.lua -encode rsa_pub.txt primes_hex.txt > c.txt
 ```
 
 try decode and diff
 
-```lua
+```bash
 $ luajit test_rsa.lua -decode rsa_priv.txt c.txt > p.txt
 $ diff p.txt primes_hex.txt
 ```
@@ -71,7 +71,7 @@ $ diff p.txt primes_hex.txt
 
 get more inteface infomation with help()
 
-```lua
+```bash
 LuaJIT 2.0.5 -- Copyright (C) 2005-2017 Mike Pall. http://luajit.org/
 JIT: ON CMOV SSE2 SSE3 SSE4.1 fold cse dce fwd dse narrow loop abc sink fuse
 > gmp = require("gmp_ffi")
