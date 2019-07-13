@@ -354,6 +354,19 @@ void __gmpf_ui_div (mpf_ptr, unsigned long int, mpf_srcptr);
 void __gmpf_ui_sub (mpf_ptr, unsigned long int, mpf_srcptr);
 void __gmpf_urandomb (mpf_t, gmp_randstate_t, mp_bitcnt_t);
 
+/** Random
+ */
+void __gmp_randinit_default (gmp_randstate_t);
+void __gmp_randinit_lc_2exp (gmp_randstate_t, mpz_srcptr, unsigned long int, mp_bitcnt_t);
+int __gmp_randinit_lc_2exp_size (gmp_randstate_t, mp_bitcnt_t);
+void __gmp_randinit_mt (gmp_randstate_t);
+void __gmp_randinit_set (gmp_randstate_t, const __gmp_randstate_struct *);
+void __gmp_randseed (gmp_randstate_t, mpz_srcptr);
+void __gmp_randseed_ui (gmp_randstate_t, unsigned long int);
+void __gmp_randclear (gmp_randstate_t);
+unsigned long __gmp_urandomb_ui (gmp_randstate_t, unsigned long);
+unsigned long __gmp_urandomm_ui (gmp_randstate_t, unsigned long);
+
 /** Misc
  */
 int __gmp_asprintf (char **, const char *, ...);
@@ -623,6 +636,18 @@ local gmpffi = {
       "mpf_ui_sub",
       "mpf_urandomb",
    },
+   random_interface = {
+      "randinit_default",
+      "randinit_lc_2exp",
+      "randinit_lc_2exp_size",
+      "randinit_mt",
+      "randinit_set",
+      "randseed",
+      "randseed_ui",
+      "randclear",
+      "urandomb_ui",
+      "urandomm_ui",
+   },
    misc_interface = {
       ["asprintf"] = "__gmp_asprintf",
       ["printf"] = "__gmp_printf",
@@ -637,32 +662,36 @@ local gmpffi = {
       ["mpq_sgn"] = "",
       ["mpz_odd"] = "",
       ["mpz_even"] = "",
+      ["randinit"] = ""
    }
 }
 
 function gmpffi.help( option )
    if not option then
       print("Usage: init with gmpffi.mpz(value), gmpffi.mpf(value), gmpffi.mpq(num, den)")
-      print("List supported interface: gmpffi.help( \"[integer|rational|float|misc]\" )")
+      print("List supported interface: gmpffi.help( \"[integer|rational|float|random|misc]\" )")
       return
    end
-   local tbl = gmpffi.misc_interface
+   local tbl = nil
    if option == "misc" then
-      for k, _ in pairs(tbl) do
-         print(k)
-      end
-      return
-   end
-   
-   if option == "float" then
+      tbl = gmpffi.misc_interface
+   elseif option == "random" then
+      tbl = gmpffi.random_interface
+   elseif option == "float" then
       tbl = gmpffi.float_interface
    elseif option == "rational" then
       tbl = gmpffi.rational_interface
    elseif option == "misc" then
       tbl = gmpffi.integer_interface
    end
-   for _, v in ipairs(tbl) do
-      print(v)
+   if #tbl then
+      for _, v in ipairs(tbl) do
+         print(v)
+      end
+   else
+      for k, _ in pairs(tbl) do
+         print(k)
+      end
    end
 end
 
@@ -740,6 +769,14 @@ function gmpffi.mpq_sgn( value )
    return v < 0 and -1 or v > 0 and 1 or 0
 end
 
+function gmpffi.randinit()
+   local rt = ffi.new("gmp_randstate_t")
+   ffi.gc(rt, gmp.__gmp_randclear)
+   gmp.__gmp_randinit_mt(rt)
+   gmp.__gmp_randseed_ui(rt, os.time())
+   return rt
+end
+
 function gmpffi.init()
    local tbl = {
       gmpffi.integer_interface,
@@ -753,10 +790,15 @@ function gmpffi.init()
          gmpffi[name] = gmp[fname]
       end
    end
-   for k, v in pairs(gmpffi.misc_interface) do
-      if v:len() > 3 then
-         assert(gmp[v], string.format("gmp.%s not exist", v)) 
-         gmpffi[k] = gmp[v]
+   for _, name in pairs(gmpffi.random_interface) do
+      local fname = "__gmp_" .. name
+      assert(gmp[fname], string.format("gmp.%s not exist", name));
+      gmpffi[name] = gmp[fname]
+   end
+   for name, fname in pairs(gmpffi.misc_interface) do
+      if fname:len() > 3 then
+         assert(gmp[fname], string.format("gmp.%s not exist", name))
+         gmpffi[name] = gmp[fname]
       end
    end
    return true
