@@ -175,8 +175,6 @@ void __gmpz_init_set_d (mpz_ptr, double);
 void __gmpz_init_set_si (mpz_ptr, signed long int);
 int __gmpz_init_set_str (mpz_ptr, const char *, int);
 void __gmpz_init_set_ui (mpz_ptr, unsigned long int);
-size_t __gmpz_inp_raw(mpz_ptr, void *);
-size_t __gmpz_inp_str(mpz_ptr, void *, int);
 int __gmpz_invert (mpz_ptr, mpz_srcptr, mpz_srcptr);
 void __gmpz_ior (mpz_ptr, mpz_srcptr, mpz_srcptr);
 int __gmpz_jacobi (mpz_srcptr, mpz_srcptr) ;
@@ -196,8 +194,6 @@ void __gmpz_mul_si (mpz_ptr, mpz_srcptr, long int);
 void __gmpz_mul_ui (mpz_ptr, mpz_srcptr, unsigned long int);
 void __gmpz_neg (mpz_ptr, mpz_srcptr);
 void __gmpz_nextprime (mpz_ptr, mpz_srcptr);
-size_t __gmpz_out_raw(void *, mpz_srcptr);
-size_t __gmpz_out_str(void *, int, mpz_srcptr);
 int __gmpz_perfect_power_p (mpz_srcptr) ;
 int __gmpz_perfect_square_p (mpz_srcptr) ;
 mp_bitcnt_t __gmpz_popcount (mpz_srcptr)  ;
@@ -273,12 +269,10 @@ double __gmpq_get_d (mpq_srcptr) ;
 char* __gmpq_get_str (char *, int, mpq_srcptr);
 void __gmpq_init (mpq_ptr);
 void __gmpq_inits (mpq_ptr, ...);
-size_t __gmpq_inp_str (mpq_ptr, void *, int);
 void __gmpq_inv (mpq_ptr, mpq_srcptr);
 void __gmpq_mul (mpq_ptr, mpq_srcptr, mpq_srcptr);
 void __gmpq_mul_2exp (mpq_ptr, mpq_srcptr, mp_bitcnt_t);
 void __gmpq_neg (mpq_ptr, mpq_srcptr);
-size_t __gmpq_out_str (void *, int, mpq_srcptr);
 void __gmpq_set (mpq_ptr, mpq_srcptr);
 void __gmpq_set_d (mpq_ptr, double);
 void __gmpq_set_den (mpq_ptr, mpz_srcptr);
@@ -331,13 +325,11 @@ void __gmpf_init_set_d (mpf_ptr, double);
 void __gmpf_init_set_si (mpf_ptr, signed long int);
 int __gmpf_init_set_str (mpf_ptr, const char *, int);
 void __gmpf_init_set_ui (mpf_ptr, unsigned long int);
-size_t __gmpf_inp_str (mpf_ptr, void *, int);
 int __gmpf_integer_p (mpf_srcptr)  ;
 void __gmpf_mul (mpf_ptr, mpf_srcptr, mpf_srcptr);
 void __gmpf_mul_2exp (mpf_ptr, mpf_srcptr, mp_bitcnt_t);
 void __gmpf_mul_ui (mpf_ptr, mpf_srcptr, unsigned long int);
 void __gmpf_neg (mpf_ptr, mpf_srcptr);
-size_t __gmpf_out_str (void *, int, size_t, mpf_srcptr);
 void __gmpf_pow_ui (mpf_ptr, mpf_srcptr, unsigned long int);
 void __gmpf_random2 (mpf_ptr, mp_size_t, mp_exp_t);
 void __gmpf_reldiff (mpf_ptr, mpf_srcptr, mpf_srcptr);
@@ -365,12 +357,10 @@ void __gmpf_urandomb (mpf_t, gmp_randstate_t, mp_bitcnt_t);
 /** Misc
  */
 int __gmp_asprintf (char **, const char *, ...);
-int __gmp_fprintf (void *, const char *, ...);
 int __gmp_printf (const char *, ...);
 int __gmp_snprintf (char *, size_t, const char *, ...);
 int __gmp_sprintf (char *, const char *, ...);
 int __gmp_vasprintf (char **, const char *, va_list);
-int __gmp_vfprintf (void *, const char *, va_list);
 int __gmp_vprintf (const char *, va_list);
 int __gmp_vsnprintf (char *, size_t, const char *, va_list);
 int __gmp_vsprintf (char *, const char *, va_list);
@@ -456,8 +446,6 @@ local gmpffi = {
       "mpz_init_set_si",
       "mpz_init_set_str",
       "mpz_init_set_ui",
-      "mpz_inp_raw",
-      "mpz_inp_str",
       "mpz_invert",
       "mpz_ior",
       "mpz_jacobi",
@@ -477,8 +465,6 @@ local gmpffi = {
       "mpz_mul_ui",
       "mpz_neg",
       "mpz_nextprime",
-      "mpz_out_raw",
-      "mpz_out_str",      
       "mpz_perfect_power_p",
       "mpz_perfect_square_p",
       "mpz_popcount",
@@ -553,12 +539,10 @@ local gmpffi = {
       "mpq_get_str",
       "mpq_init",
       "mpq_inits",
-      "mpq_inp_str",
       "mpq_inv",
       "mpq_mul",
       "mpq_mul_2exp",
       "mpq_neg",
-      "mpq_out_str",
       "mpq_set",
       "mpq_set_d",
       "mpq_set_den",
@@ -610,13 +594,11 @@ local gmpffi = {
       "mpf_init_set_si",
       "mpf_init_set_str",
       "mpf_init_set_ui",
-      "mpf_inp_str",
       "mpf_integer_p",
       "mpf_mul",
       "mpf_mul_2exp",
       "mpf_mul_ui",
       "mpf_neg",
-      "mpf_out_str",
       "mpf_pow_ui",
       "mpf_random2",
       "mpf_reldiff",
@@ -643,12 +625,10 @@ local gmpffi = {
    },
    misc_interface = {
       ["asprintf"] = "__gmp_asprintf",
-      ["fprintf"] = "__gmp_fprintf",
       ["printf"] = "__gmp_printf",
       ["snprintf"] = "__gmp_snprintf",
       ["sprintf"]= "__gmp_sprintf",
       ["vasprintf"] = "__gmp_vasprintf",
-      ["vfprintf"] = "__gmp_vfprintf",
       ["vprintf"] = "__gmp_vprintf",
       ["vsnprintf"] = "__gmp_vsnprintf",
       ["vsprintf"] = "__gmp_vsprintf",

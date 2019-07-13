@@ -11,6 +11,8 @@ function basic_test()
    --gmp.mpz_set_ui(c, 1)
    gmp.printf("mpz: a:%Zd, c sign:", a)
    print(string.format("%d, odd:%s", gmp.mpz_sgn(c), gmp.mpz_odd(c)))
+   a = gmp.mpz("ff", 16)
+   gmp.printf("mpz: value base %Zd\n", a)   
 
    a = gmp.mpf(111111111.111111111)
    b = gmp.mpf("999999999999999999999999999.99999999999999999999999999999999999")
