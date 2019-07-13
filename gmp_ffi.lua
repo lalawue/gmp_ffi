@@ -713,8 +713,8 @@ function gmpffi.mpz_odd( value )
    return value[0]._mp_size ~= 0 and bit.band(1, tonumber(value[0]._mp_d[0])) == 1
 end
 
-function gmpffi.mpz_event( value )
-   return gmpffi.mpz_odd( value )
+function gmpffi.mpz_even( value )
+   return not gmpffi.mpz_odd( value )
 end
 
 function gmpffi.mpf( value, base )
