@@ -76,7 +76,7 @@ function rsa.string_to_hex( message )
    local tbl = {}
    local i = 1
    repeat
-      tbl[#tbl + 1] = string.format("%02X", message:byte(i))
+      tbl[#tbl + 1] = string.format("%02x", message:byte(i))
       i = i + 1
    until i > message:len()
    return table.concat(tbl, "")
@@ -92,24 +92,34 @@ function rsa.hex_to_string( hex )
    return table.concat(tbl, "")
 end
 
-function rsa.encode( message, tbl )
-   local hex = rsa.string_to_hex(message)
-   local ze = tbl[1]
-   local zn = tbl[2]
-   local blen = tbl[3]
+function rsa.mode_exp( input_hex, block_length, ze, zn )
    local zm = gmp.mpz()
    local zx = gmp.mpz()
-   local cs = gmp.cstring(tonumber(blen) * 2)
+   local cs = gmp.cstring(block_length * 2)
    local tbl = {}
    local i = 1
+   local input_len = input_hex:len()
    repeat
-      local ptext = hex:sub(i, math.min(i+blen-1, hex:len()))
-      gmp.mpz_set_str(zm, ptext, 16)
+      local text = input_hex:sub(i, math.min(i+ block_length - 1, input_len))
+      gmp.mpz_set_str(zm, text, 16)
       gmp.mpz_powm(zx, zm, ze, zn)
       gmp.sprintf(cs, "%Zx", zx)
-      tbl[#tbl + 1] = gmp.tostring(cs)
-      i = i + blen
-   until i >= hex:len()
+      local hex = gmp.tostring(cs)
+      if hex:len() < block_length and (i + block_length) < input_len then
+         hex = string.rep("0", block_length - hex:len()) .. hex
+      end
+      tbl[#tbl + 1] = hex
+      i = i + block_length
+   until i >= input_len
+   return tbl
+end
+
+function rsa.encode( message, tbl )
+   local input_hex = rsa.string_to_hex(message)
+   local ze = tbl[1]
+   local zn = tbl[2]
+   local block_length = tbl[3]
+   local tbl = rsa.mode_exp( input_hex, block_length, ze, zn)
    local output = table.concat(tbl, "")
    print(output)
 end
@@ -117,24 +127,8 @@ end
 function rsa.decode( message, tbl )
    local zd = tbl[1]
    local zn = tbl[2]
-   local blen = tbl[3]
-   local zm = gmp.mpz()
-   local zx = gmp.mpz()
-   local cs = gmp.cstring( blen * 3 )
-   local tbl = {}
-   local i = 1
-   repeat
-      local ctext = message:sub(i, math.min(i+blen-1, message:len()))
-      gmp.mpz_set_str(zm, ctext, 16)
-      gmp.mpz_powm(zx, zm, zd, zn)
-      gmp.sprintf(cs, "%Zx", zx)
-      local str = gmp.tostring(cs)
-      if str:len() < blen and (i + blen) < message:len() then
-         str = string.rep("0", blen - str:len()) .. str         
-      end
-      tbl[#tbl + 1] = str         
-      i = i + blen
-   until i >= message:len()
+   local block_length = tbl[3]
+   local tbl = rsa.mode_exp( message, block_length, zd, zn)
    local output = table.concat(tbl, "")
    output = rsa.hex_to_string(output)
    io.write(output)

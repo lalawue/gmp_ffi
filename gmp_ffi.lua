@@ -672,8 +672,8 @@ local gmpffi = {
 
 function gmpffi.help( option )
    if not option then
-      print("Usage: init with gmpffi.mpz(value), gmpffi.mpf(value), gmpffi.mpq(num, den)")
-      print("List supported interface: gmpffi.help( \"[integer|rational|float|random|misc]\" )")
+      print("Usage: gmp.mpz(), gmp.mpf(), gmp.mpq(), gmp.randinit() with ffi.gc() hook")
+      print("supported interface with gmp.help(\"[integer|rational|float|random|misc]\")")
       return
    end
    local tbl = nil
@@ -685,10 +685,10 @@ function gmpffi.help( option )
       tbl = gmpffi.float_interface
    elseif option == "rational" then
       tbl = gmpffi.rational_interface
-   elseif option == "misc" then
+   elseif option == "integer" then
       tbl = gmpffi.integer_interface
    end
-   if #tbl then
+   if #tbl > 0 then
       for _, v in ipairs(tbl) do
          print(v)
       end
