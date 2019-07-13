@@ -7,9 +7,22 @@ gmp_ffi.lua is a LuaJIT FFI binding for [GMP](http://gmplib.org) 6.1.2 with ffi.
 
 examples to show how to use gmp_ffi.lua.
 
-## 1. Test Prime
+## 1. Basic
 
-It's a prime calculation program, try to get first 1 millon primes below, cost about 2 minutes, or just get the last
+get basic example with
+
+```lua
+$ luajit test_gmpffi.lua
+mpz: a:11111111110999999999999999999999988888888889, c sign:1, odd:true
+mpz: value base ff
+mpf: 111111111111111104488000000000000000.000000, c sign:1
+mpq: 626aec68da8949667fc8628d85031c7078369/a51e113c298b8eea12d162747078369, c sign:0
+random: 4176066647
+```
+
+## 2. Test Prime
+
+a prime calculation program, try to get first 1 millon primes below, cost about 2 minutes, or just get the last like
 
 ```lua
 $ luajit test_prime.lua 15485864 > output_primes.txt
@@ -26,7 +39,7 @@ $ luajit test_read_primes.lua primes1.txt > primes_lines.txt
 $ diff primes_lines.txt output_primes.txt
 ```
 
-## 2. RSA encode/decode
+## 3. RSA encode/decode
 
 first get primes in hex using later, using 32bit integer for example
 
