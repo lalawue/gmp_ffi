@@ -377,6 +377,8 @@ int __gmp_vasprintf (char **, const char *, va_list);
 int __gmp_vprintf (const char *, va_list);
 int __gmp_vsnprintf (char *, size_t, const char *, va_list);
 int __gmp_vsprintf (char *, const char *, va_list);
+void* calloc(size_t count, size_t size);
+void free(void*);
 ]]
 
 local gmpffi = {
@@ -662,7 +664,9 @@ local gmpffi = {
       ["mpq_sgn"] = "",
       ["mpz_odd"] = "",
       ["mpz_even"] = "",
-      ["randinit"] = ""
+      ["randinit"] = "",
+      ["cstring"] = "",
+      ["tostring"] = "",
    }
 }
 
@@ -775,6 +779,16 @@ function gmpffi.randinit()
    gmp.__gmp_randinit_mt(rt)
    gmp.__gmp_randseed_ui(rt, os.time())
    return rt
+end
+
+function gmpffi.cstring( count )
+   local n = tonumber(count) > 0 and count or 128
+   return ffi.gc(ffi.C.calloc(n/2+1, 2), ffi.C.free)
+end
+
+function gmpffi.tostring( cs )
+   assert(cs)
+   return ffi.string(cs)
 end
 
 function gmpffi.init()

@@ -29,7 +29,9 @@ function gmpffi_test()
    print(gmp.mpq_sgn(c))
 
    local rt = gmp.randinit()
-   gmp.printf("random: %u\n", gmp.urandomb_ui(rt, 9999999))
+   local cs = gmp.cstring(64)
+   gmp.sprintf(cs, "random: %u", gmp.urandomb_ui(rt, 9999999))
+   print(gmp.tostring(cs))
 end
 
 gmpffi_test()
